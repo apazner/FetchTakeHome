@@ -33,23 +33,32 @@ struct DessertItemRow: View {
     }
 }
 
+struct DessertDetail: View {
+    var body: some View {
+        VStack {
+            
+        }
+    }
+}
+
 struct ContentView: View {
     
     @State var data: MealsData?
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(alignment: .leading) {
-                    if let data = data {
-                        let meals = data.meals
-                        ForEach(meals, id: \.idMeal) { meal in
+        NavigationSplitView {
+            List {
+                if let data = data {
+                    let meals = data.meals
+                    ForEach(meals, id: \.idMeal) { meal in
+                        NavigationLink {
+                            DessertDetail()
+                        } label: {
                             DessertItemRow(imageURL: meal.strMealThumb, title: meal.strMeal)
                         }
                     }
                 }
             }
-            .padding()
             .onAppear {
                 let baseURL = "https://themealdb.com/api/json/v1/1/filter.php?c=Dessert"
                 guard let url = URL(string: baseURL) else {
@@ -65,6 +74,8 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("Desserts")
+        } detail: {
+            Text("Select a Dessert")
         }
         
     }
