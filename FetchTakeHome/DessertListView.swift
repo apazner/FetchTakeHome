@@ -20,7 +20,6 @@ struct DessertListView: View {
                     DessertListRow(imageURL: meal.strMealThumb, title: meal.strMeal)
                 }
             }
-            
             .searchable(text: $mealModel.search)
             // Note that an odd error (this application... passed an invalid numeric...)
             // comes up when holding down on the search bar, seems to be a bug on apple's side
@@ -33,7 +32,6 @@ struct DessertListView: View {
         .environmentObject(mealModel)
         
     }
-
     
 }
 

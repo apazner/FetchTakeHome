@@ -46,7 +46,8 @@ class MealModel: ObservableObject {
             } catch (let error) {
                 print(error.localizedDescription)
             }
-        }.resume()
+        }
+        .resume()
     }
     
     /// Retrieve detailed meal data.
@@ -69,7 +70,8 @@ class MealModel: ObservableObject {
             } catch (let error) {
                 print(error.localizedDescription)
             }
-        }.resume()
+        }
+        .resume()
     }
     
 }
