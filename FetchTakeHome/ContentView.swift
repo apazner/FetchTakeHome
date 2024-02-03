@@ -9,14 +9,26 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State var data: MealsData?
+    @State private var data: MealsData?
+    @State private var search: String = ""
+    
+    private var filteredData: [Meal] {
+        if let data = data {
+            if search.isEmpty {
+                return data.meals
+            } else {
+                return data.meals.filter { $0.strMeal.contains(search) }
+            }
+        }
+        
+        return []
+    }
     
     var body: some View {
         NavigationSplitView {
             List {
-                if let data = data {
-                    let meals = data.meals
-                    ForEach(meals, id: \.idMeal) { meal in
+                if data != nil {
+                    ForEach(filteredData, id: \.idMeal) { meal in
                         NavigationLink {
                             DessertDetailView(id: meal.idMeal)
                             //DessertDetailView(id: "52768") - has nulls, good for testing
@@ -29,25 +41,31 @@ struct ContentView: View {
                         .controlSize(.large)
                 }
             }
+            .searchable(text: $search)
             .onAppear {
-                let baseURL = "https://themealdb.com/api/json/v1/1/filter.php?c=Dessert"
-                guard let url = URL(string: baseURL) else {
-                    return
-                }
-                URLSession.shared.getData(for: url) { (result: Result<MealsData, Error>) in
-                    switch result {
-                    case .success(let data):
-                        self.data = data
-                    case .failure(let error):
-                        print(error)
-                    }
-                }
+                apiRequest()
             }
             .navigationTitle("Desserts")
         } detail: {
             Text("Select a Dessert")
         }
         
+    }
+    
+    private func apiRequest() {
+        let baseURL = "https://themealdb.com/api/json/v1/1/filter.php?c=Dessert"
+        guard let url = URL(string: baseURL) else {
+            print("URL Error.")
+            return
+        }
+        URLSession.shared.getData(for: url) { (result: Result<MealsData, Error>) in
+            switch result {
+            case .success(let data):
+                self.data = data
+            case .failure(let error):
+                print(error)
+            }
+        }
     }
 }
 

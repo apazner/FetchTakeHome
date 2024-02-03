@@ -7,6 +7,7 @@
 
 import Foundation
 
+// dummy struct, api responses are nested in an object
 struct MealsData: Decodable {
     var meals: [Meal]
 }
@@ -24,7 +25,6 @@ struct Meal: Decodable {
     
     enum CodingKeys: String, CodingKey {
         case idMeal, strMeal, strMealThumb, strInstructions
-        
     }
     
     // dynamic coding key for ingredients and measurements, so we don't have to write a bunch of individual keys
@@ -46,8 +46,11 @@ struct Meal: Decodable {
     }
 }
 
+// custom decoding function - particularly for parsing ingredients/measurements
 extension Meal {
     init(from decoder: Decoder) throws {
+        
+        // handle basic keys
         let values = try decoder.container(keyedBy: CodingKeys.self)
         idMeal = try values.decode(String.self, forKey: .idMeal)
         strMeal = try values.decode(String.self, forKey: .strMeal)
@@ -77,9 +80,6 @@ extension Meal {
                         
                         let num = key.stringValue.suffix(key.stringValue.count - ingredientPrefix.count)
                         
-                        print(ingredient)
-                        print(num)
-                        
                         // get corresponding measurment (can't assume order of json parsing so need to do this)
                         // also helpful to automatically put it corresponding items in the dictionary
                         
@@ -104,6 +104,7 @@ extension Meal {
     }
 }
 
+// generic function to perform api fetch requests
 extension URLSession {
     func getData<T: Decodable> (for url: URL, completion: @escaping (Result<T, Error>) -> Void) {
         self.dataTask(with: url) { data, response, error in
