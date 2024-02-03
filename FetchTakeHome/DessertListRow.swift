@@ -12,7 +12,7 @@ struct DessertListRow: View {
     let title: String
     
     var body: some View {
-        return HStack {
+        HStack {
             AsyncImage(url: URL(string: imageURL)) { image in
                 image.resizable()
             } placeholder: {

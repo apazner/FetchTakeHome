@@ -12,12 +12,15 @@ struct ContentView: View {
     @State private var data: MealsData?
     @State private var search: String = ""
     
+    // Note that an odd error (this application... passed an invalid numeric...)
+    // comes up when holding down on the search bar, seems to be a bug on apple's side
+    // https://forums.developer.apple.com/forums/thread/738726
     private var filteredData: [Meal] {
         if let data = data {
             if search.isEmpty {
                 return data.meals
             } else {
-                return data.meals.filter { $0.strMeal.contains(search) }
+                return data.meals.filter { $0.strMeal.localizedCaseInsensitiveContains(search) }
             }
         }
         
@@ -31,7 +34,6 @@ struct ContentView: View {
                     ForEach(filteredData, id: \.idMeal) { meal in
                         NavigationLink {
                             DessertDetailView(id: meal.idMeal)
-                            //DessertDetailView(id: "52768") - has nulls, good for testing
                         } label: {
                             DessertListRow(imageURL: meal.strMealThumb, title: meal.strMeal)
                         }

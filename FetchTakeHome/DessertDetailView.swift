@@ -9,7 +9,6 @@ import SwiftUI
 
 struct DessertDetailView: View {
     let id: String
-    
     @State private var data: Meal?
     
     var body: some View {

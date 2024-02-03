@@ -68,36 +68,38 @@ extension Meal {
         
         let dynamicValues = try decoder.container(keyedBy: DynamicCodingKeys.self)
         for key in dynamicValues.allKeys {
-            if (key.stringValue.contains(ingredientPrefix)) {
-                
-                if let ingrKey = DynamicCodingKeys(stringValue: key.stringValue) {
-                    var ingredient = try dynamicValues.decodeIfPresent(String.self, forKey: ingrKey) ?? ""
-                    
-                    // remove whitespace
-                    ingredient = ingredient.trimmingCharacters(in: .whitespacesAndNewlines)
-                    
-                    if (ingredient != "") {
-                        
-                        let num = key.stringValue.suffix(key.stringValue.count - ingredientPrefix.count)
-                        
-                        // get corresponding measurment (can't assume order of json parsing so need to do this)
-                        // also helpful to automatically put it corresponding items in the dictionary
-                        
-                        if let measKey = DynamicCodingKeys(stringValue: measurmentPrefix + num) {
-                            var measurement = try dynamicValues.decodeIfPresent(String.self, forKey: measKey) ?? ""
-                            // remove whitespace
-                            measurement = measurement.trimmingCharacters(in: .whitespacesAndNewlines)
-                            
-                            // measurement being null at this point would be an error on the api side, but check just in case
-                            if (measurement != "") {
-                                // add pair to dictionary
-                                ingredients[ingredient] = measurement
-                            }
-                        }
-                        
-                    }
-                }
-                
+            
+            // check if key is an ingredient
+            if (!key.stringValue.contains(ingredientPrefix)) {
+                continue
+            }
+            
+            var ingredient = try dynamicValues.decodeIfPresent(String.self, forKey: key) ?? ""
+            ingredient = ingredient.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            // ingredient is null or empty, skip
+            if (ingredient == "") {
+                continue
+            }
+            
+            // associated ingredient number
+            let num = key.stringValue.suffix(key.stringValue.count - ingredientPrefix.count)
+            
+            // get the corresponding measurements key
+            guard let measKey = DynamicCodingKeys(stringValue: measurmentPrefix + num) else {
+                print("Ingredient does not have associated measurement.")
+                continue
+            }
+            
+            var measurement = try dynamicValues.decodeIfPresent(String.self, forKey: measKey) ?? ""
+            measurement = measurement.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            // measurement being null/empty at this point would be an error on the api side, but check just in case
+            if (measurement != "") {
+                // add pair to dictionary
+                ingredients[ingredient] = measurement
+            } else {
+                print("Measurement value is empty.")
             }
         }
         
