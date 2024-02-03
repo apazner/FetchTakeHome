@@ -7,40 +7,6 @@
 
 import SwiftUI
 
-struct MealsData: Codable {
-    var meals: [Meal]
-}
-
-struct Meal: Codable {
-    let strMeal: String
-    let strMealThumb: String
-    let idMeal: String
-}
-
-struct DessertItemRow: View {
-    let imageURL: String
-    let title: String
-    var body: some View {
-        return HStack {
-            AsyncImage(url: URL(string: imageURL)) { image in
-                image.resizable()
-            } placeholder: {
-                ProgressView()
-            }
-            .frame(width: 100, height: 100)
-            Text(title)
-        }
-    }
-}
-
-struct DessertDetail: View {
-    var body: some View {
-        VStack {
-            
-        }
-    }
-}
-
 struct ContentView: View {
     
     @State var data: MealsData?
@@ -52,9 +18,10 @@ struct ContentView: View {
                     let meals = data.meals
                     ForEach(meals, id: \.idMeal) { meal in
                         NavigationLink {
-                            DessertDetail()
+                            DessertDetailView(id: meal.idMeal)
+                            //DessertDetailView(id: "52768") - has nulls, good for testing
                         } label: {
-                            DessertItemRow(imageURL: meal.strMealThumb, title: meal.strMeal)
+                            DessertListRow(imageURL: meal.strMealThumb, title: meal.strMeal)
                         }
                     }
                 }
