@@ -14,7 +14,9 @@ struct DessertListRow: View {
     var body: some View {
         HStack {
             AsyncImage(url: URL(string: imageURL)) { image in
-                image.resizable()
+                image
+                    .resizable()
+                    .cornerRadius(10)
             } placeholder: {
                 ProgressView()
             }
