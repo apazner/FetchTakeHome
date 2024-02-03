@@ -24,6 +24,9 @@ struct ContentView: View {
                             DessertListRow(imageURL: meal.strMealThumb, title: meal.strMeal)
                         }
                     }
+                } else {
+                    ProgressView()
+                        .controlSize(.large)
                 }
             }
             .onAppear {

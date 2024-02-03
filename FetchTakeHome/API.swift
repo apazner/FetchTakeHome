@@ -19,8 +19,8 @@ struct Meal: Decodable {
     // empty string if not present
     let strInstructions: String
     
-    var ingredients: [String] = []
-    var measurements: [String] = []
+    // dictionary of ingredients with corresponding measurement
+    var ingredients: [String: String] = [:]
     
     enum CodingKeys: String, CodingKey {
         case idMeal, strMeal, strMealThumb, strInstructions
@@ -56,25 +56,45 @@ extension Meal {
         strInstructions = try values.decodeIfPresent(String.self, forKey: .strInstructions) ?? ""
         
         // decode ingredients and measurements
+        
+        // ingredient prefix
+        let ingredientPrefix = "strIngredient"
+        
+        // measurment prefix
+        let measurmentPrefix = "strMeasure"
+        
         let dynamicValues = try decoder.container(keyedBy: DynamicCodingKeys.self)
         for key in dynamicValues.allKeys {
-            if (key.stringValue.contains("strIngredient")) {
+            if (key.stringValue.contains(ingredientPrefix)) {
                 
-                if let key = DynamicCodingKeys(stringValue: key.stringValue) {
-                    let ingredient = try dynamicValues.decodeIfPresent(String.self, forKey: key) ?? ""
+                if let ingrKey = DynamicCodingKeys(stringValue: key.stringValue) {
+                    var ingredient = try dynamicValues.decodeIfPresent(String.self, forKey: ingrKey) ?? ""
+                    
+                    // remove whitespace
+                    ingredient = ingredient.trimmingCharacters(in: .whitespacesAndNewlines)
                     
                     if (ingredient != "") {
-                        ingredients.append(ingredient)
-                    }
-                }
-                
-            } else if (key.stringValue.contains("strMeasure")) {
-                
-                if let key = DynamicCodingKeys(stringValue: key.stringValue) {
-                    let measurement = try dynamicValues.decodeIfPresent(String.self, forKey: key) ?? ""
-                    
-                    if (measurement != "") {
-                        measurements.append(measurement)
+                        
+                        let num = key.stringValue.suffix(key.stringValue.count - ingredientPrefix.count)
+                        
+                        print(ingredient)
+                        print(num)
+                        
+                        // get corresponding measurment (can't assume order of json parsing so need to do this)
+                        // also helpful to automatically put it corresponding items in the dictionary
+                        
+                        if let measKey = DynamicCodingKeys(stringValue: measurmentPrefix + num) {
+                            var measurement = try dynamicValues.decodeIfPresent(String.self, forKey: measKey) ?? ""
+                            // remove whitespace
+                            measurement = measurement.trimmingCharacters(in: .whitespacesAndNewlines)
+                            
+                            // measurement being null at this point would be an error on the api side, but check just in case
+                            if (measurement != "") {
+                                // add pair to dictionary
+                                ingredients[ingredient] = measurement
+                            }
+                        }
+                        
                     }
                 }
                 
